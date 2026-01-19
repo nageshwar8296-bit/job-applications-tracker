@@ -1,0 +1,13 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="512" height="512" rx="96" fill="#6366F1"/>
+  
+  <!-- Briefcase/Job icon -->
+  <rect x="96" y="180" width="320" height="220" rx="24" fill="white"/>
+  <rect x="176" y="120" width="160" height="80" rx="16" fill="white"/>
+  <rect x="196" y="140" width="120" height="40" rx="8" fill="#6366F1"/>
+  
+  <!-- Checkmark -->
+  <circle cx="380" cy="380" r="72" fill="#10B981"/>
+  <path d="M340 380L365 405L420 350" stroke="white" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

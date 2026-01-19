@@ -1,0 +1,77 @@
+{
+  "name": "job-tracker",
+  "title": "Job Application Tracker",
+  "description": "Log job applications to Notion with one click",
+  "icon": "extension-icon.png",
+  "author": "nageshwar",
+  "categories": [
+    "Productivity"
+  ],
+  "license": "MIT",
+  "commands": [
+    {
+      "name": "log-application",
+      "title": "Log Job Application",
+      "subtitle": "Save to Notion",
+      "description": "Capture current browser tab and log as job application",
+      "mode": "view"
+    },
+    {
+      "name": "view-applications",
+      "title": "View Applications",
+      "description": "Open your Notion job tracker database",
+      "mode": "no-view"
+    }
+  ],
+  "preferences": [
+    {
+      "name": "notionToken",
+      "title": "Notion API Token",
+      "description": "Your Notion integration token (starts with ntn_ or secret_)",
+      "type": "password",
+      "required": true
+    },
+    {
+      "name": "databaseId",
+      "title": "Notion Database ID",
+      "description": "The ID of your Job Applications database",
+      "type": "textfield",
+      "required": true
+    },
+    {
+      "name": "notionDatabaseUrl",
+      "title": "Notion Database URL",
+      "description": "Full URL to your Notion database (for quick access)",
+      "type": "textfield",
+      "required": false
+    },
+    {
+      "name": "resumeFolder",
+      "title": "Resume Folder",
+      "description": "Path to folder containing your resumes (e.g., ~/Documents/Resumes)",
+      "type": "textfield",
+      "required": false,
+      "placeholder": "~/Documents/Resumes"
+    }
+  ],
+  "dependencies": {
+    "@notionhq/client": "^2.2.14",
+    "@raycast/api": "^1.104.1",
+    "run-applescript": "^7.0.0"
+  },
+  "devDependencies": {
+    "@raycast/eslint-config": "^1.0.8",
+    "@types/node": "20.10.0",
+    "@types/react": "^19.0.10",
+    "eslint": "^8.54.0",
+    "prettier": "^3.1.0",
+    "typescript": "^5.3.2"
+  },
+  "scripts": {
+    "build": "ray build -e dist",
+    "dev": "ray develop",
+    "fix-lint": "ray lint --fix",
+    "lint": "ray lint",
+    "publish": "npx @raycast/api@latest publish"
+  }
+}
