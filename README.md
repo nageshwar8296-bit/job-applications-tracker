@@ -232,3 +232,4 @@ MIT License — see [LICENSE](LICENSE) for details.
 **Built for the job hunt. One click at a time.**
 
 If this helped you, consider giving it a ⭐
+# job-applications-tracker
