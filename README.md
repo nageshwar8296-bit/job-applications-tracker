@@ -12,7 +12,7 @@
 <!-- Add your demo GIF here -->
 <!-- ![Demo](assets/demo.gif) -->
 
-**Coming soon** - Record a quick demo showing the workflow in action.
+**Coming soon** 
 
 ## The Problem
 
