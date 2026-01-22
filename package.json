@@ -21,6 +21,13 @@
       "title": "View Applications",
       "description": "Open your Notion job tracker database",
       "mode": "no-view"
+    },
+    {
+      "name": "sync-email-status",
+      "title": "Sync Application Status from Email",
+      "subtitle": "Mail to Notion",
+      "description": "Check Mail for job application status updates and sync to Notion",
+      "mode": "no-view"
     }
   ],
   "preferences": [

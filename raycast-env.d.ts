@@ -26,6 +26,8 @@ declare namespace Preferences {
   export type LogApplication = ExtensionPreferences & {}
   /** Preferences accessible in the `view-applications` command */
   export type ViewApplications = ExtensionPreferences & {}
+  /** Preferences accessible in the `sync-email-status` command */
+  export type SyncEmailStatus = ExtensionPreferences & {}
 }
 
 declare namespace Arguments {
@@ -33,5 +35,7 @@ declare namespace Arguments {
   export type LogApplication = {}
   /** Arguments passed to the `view-applications` command */
   export type ViewApplications = {}
+  /** Arguments passed to the `sync-email-status` command */
+  export type SyncEmailStatus = {}
 }
 

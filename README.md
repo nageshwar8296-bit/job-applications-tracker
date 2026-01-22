@@ -44,6 +44,7 @@ The extension:
 - **Auto-refresh** — Detects when you navigate to a new job posting
 - **One-click logging** — Everything saved to Notion instantly
 - **Offline resumes** — All resumes stored locally, no cloud upload needed
+- **Email Status Sync** — Automatically sync rejection/interview status from Gmail to Notion
 
 ## Requirements
 
@@ -148,6 +149,7 @@ Open Raycast → Search "Log Job Application" → Press `Cmd + ,` to configure:
 |---------|----------|-------------|
 | Log Job Application | `Cmd + Shift + J` | Capture & log current tab |
 | View Applications | — | Open Notion database |
+| Sync Application Status from Email | — | Sync rejection status from Gmail |
 
 ### Workflow
 
@@ -157,6 +159,152 @@ Open Raycast → Search "Log Job Application" → Press `Cmd + ,` to configure:
 4. Select resume from dropdown
 5. Press Enter
 6. ✅ Logged to Notion
+
+---
+
+## Email Status Sync
+
+Automatically sync rejection emails to update your Notion applications.
+
+### How It Works
+
+1. Move rejection emails to a Gmail "Rejected" label
+2. Run "Sync Application Status from Email" in Raycast
+3. Review matched applications
+4. Click "Update All" to update Notion
+
+The sync checks applications with **Applied**, **Interview**, or **Offer** status and updates them to "Rejected" if a matching email is found.
+
+### Setup
+
+#### 1. Apple Mail Setup
+Add your Gmail account to Apple Mail and ensure it syncs properly.
+
+#### 2. Gmail Label & Filter Setup
+
+**Create the label:**
+1. In Gmail, click the **+** next to "Labels" in the sidebar
+2. Name it `Rejected`
+
+**Create auto-filter for rejections:**
+1. Go to **Gmail Settings** (gear icon) → **See all settings**
+2. Go to **Filters and Blocked Addresses** tab
+3. Click **Create a new filter**
+4. In **"Has the words"** field, paste:
+   ```
+   "unfortunately" OR "not moving forward" OR "decided not to" OR "pursue other candidate" OR "position has been filled" OR "will not be moving forward" OR "regret to inform" OR "decided to pursue other"
+   ```
+5. Click **Create filter**
+6. Check:
+   - ✅ **Apply the label:** → Select "Rejected"
+   - ✅ **Also apply filter to matching conversations**
+7. Click **Create filter**
+
+Now rejection emails are automatically labeled and will sync to Notion.
+
+#### 3. Apple Shortcut Setup
+Create a shortcut named **"Check Job Emails"** with these actions:
+
+**Action 1: Run AppleScript**
+```applescript
+on run {input, parameters}
+    tell application "Mail"
+        set jsonArray to "["
+        set isFirst to true
+
+        set googleAccount to account "Google"
+        set rejectFolder to mailbox "Rejected" of googleAccount
+        set allMessages to messages of rejectFolder
+
+        repeat with msg in allMessages
+            set msgSubject to subject of msg
+            set msgSender to sender of msg
+
+            set companyName to my extractCompany(msgSubject, msgSender)
+
+            if companyName is not "" then
+                set companyName to my replaceText(companyName, "\"", "'")
+
+                if not isFirst then
+                    set jsonArray to jsonArray & ","
+                end if
+                set isFirst to false
+
+                set jsonArray to jsonArray & "{\"company\":\"" & companyName & "\",\"status\":\"Rejected\"}"
+            end if
+        end repeat
+
+        set jsonArray to jsonArray & "]"
+        return jsonArray
+    end tell
+end run
+
+on extractCompany(subj, sender)
+    if subj contains " at " then
+        set oldDelims to AppleScript's text item delimiters
+        set AppleScript's text item delimiters to " at "
+        set parts to text items of subj
+        set AppleScript's text item delimiters to oldDelims
+        if (count of parts) > 1 then
+            set companyPart to item 2 of parts
+            set AppleScript's text item delimiters to " sent"
+            set companyPart to item 1 of text items of companyPart
+            set AppleScript's text item delimiters to oldDelims
+            return companyPart
+        end if
+    end if
+
+    if sender contains "<" then
+        set oldDelims to AppleScript's text item delimiters
+        set AppleScript's text item delimiters to "<"
+        set senderName to item 1 of text items of sender
+        set AppleScript's text item delimiters to oldDelims
+        return my trimText(senderName)
+    end if
+
+    return sender
+end extractCompany
+
+on replaceText(theText, searchStr, replaceStr)
+    set oldDelims to AppleScript's text item delimiters
+    set AppleScript's text item delimiters to searchStr
+    set theItems to text items of theText
+    set AppleScript's text item delimiters to replaceStr
+    set theText to theItems as text
+    set AppleScript's text item delimiters to oldDelims
+    return theText
+end replaceText
+
+on trimText(theText)
+    repeat while theText starts with " "
+        set theText to text 2 thru -1 of theText
+    end repeat
+    repeat while theText ends with " "
+        set theText to text 1 thru -2 of theText
+    end repeat
+    return theText
+end trimText
+```
+
+**Action 2: Copy to Clipboard**
+Add "Copy to Clipboard" action with the AppleScript result.
+
+### Automation
+
+Set up automatic daily sync:
+
+1. Open **Shortcuts** app → **Automation** tab
+2. Create new automation with **Time of Day** trigger
+3. Add **Run Shell Script** action:
+   ```bash
+   open "raycast://extensions/nageshwar/job-tracker/sync-email-status"
+   ```
+4. Turn off "Ask Before Running" for automatic execution
+5. Save the automation
+
+Now the sync runs daily at your set time, showing a confirmation dialog before updating.
+
+---
 
 ## Supported Job Boards
 

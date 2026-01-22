@@ -43,7 +43,9 @@ async function getBrowserUrl(): Promise<string> {
     }
     return url.trim();
   } catch {
-    throw new Error("Could not get browser URL. Make sure Comet is open with a tab.");
+    throw new Error(
+      "Could not get browser URL. Make sure Comet is open with a tab.",
+    );
   }
 }
 
@@ -63,10 +65,13 @@ function detectSource(url: string): string {
   if (url.includes("linkedin.com")) return "LinkedIn";
   if (url.includes("indeed.com")) return "Indeed";
   if (url.includes("glassdoor.com")) return "Glassdoor";
-  if (url.includes("wellfound.com") || url.includes("angel.co")) return "Wellfound";
+  if (url.includes("wellfound.com") || url.includes("angel.co"))
+    return "Wellfound";
   if (url.includes("lever.co")) return "Lever";
-  if (url.includes("greenhouse.io") || url.includes("boards.greenhouse")) return "Greenhouse";
-  if (url.includes("workday.com") || url.includes("myworkdayjobs.com")) return "Workday";
+  if (url.includes("greenhouse.io") || url.includes("boards.greenhouse"))
+    return "Greenhouse";
+  if (url.includes("workday.com") || url.includes("myworkdayjobs.com"))
+    return "Workday";
   if (url.includes("jobright.ai")) return "Jobright";
   if (url.includes("handshake")) return "Handshake";
   if (url.includes("ziprecruiter.com")) return "ZipRecruiter";
@@ -79,7 +84,9 @@ function detectSource(url: string): string {
 
 function getResumes(folderPath?: string): string[] {
   if (!folderPath) return [];
-  const expandedPath = folderPath.startsWith("~") ? folderPath.replace("~", homedir()) : folderPath;
+  const expandedPath = folderPath.startsWith("~")
+    ? folderPath.replace("~", homedir())
+    : folderPath;
   if (!existsSync(expandedPath)) return [];
   try {
     const files = readdirSync(expandedPath);
@@ -92,11 +99,18 @@ function getResumes(folderPath?: string): string[] {
 // Get expanded resume folder path
 function getResumeFolder(folderPath?: string): string {
   if (!folderPath) return join(homedir(), "Documents", "Resumes");
-  return folderPath.startsWith("~") ? folderPath.replace("~", homedir()) : folderPath;
+  return folderPath.startsWith("~")
+    ? folderPath.replace("~", homedir())
+    : folderPath;
 }
 
 // Call Apple Shortcut "Parse Job" to get AI-parsed job details
-async function callParseJobShortcut(): Promise<{ role: string; company: string; location: string; timezone: string }> {
+async function callParseJobShortcut(): Promise<{
+  role: string;
+  company: string;
+  location: string;
+  timezone: string;
+}> {
   // Clear clipboard first, run shortcut, then poll clipboard until it has content
   // We use 'shortcuts run' in background so it doesn't steal focus
   const script = `
@@ -125,9 +139,15 @@ async function callParseJobShortcut(): Promise<{ role: string; company: string; 
     // Parse the ChatGPT response
     // Expected: Role: X \n Company: Y \n Location: Z \n Timezone: T
     const roleMatch = result.match(/Role:\s*(.+?)(?=\s*\n?\s*Company:|$)/is);
-    const companyMatch = result.match(/Company:\s*(.+?)(?=\s*\n?\s*Location:|$)/is);
-    const locationMatch = result.match(/Location:\s*(.+?)(?=\s*\n?\s*Timezone:|\s*\n?\s*Job Posting URL:|$)/is);
-    const timezoneMatch = result.match(/Timezone:\s*(.+?)(?=\s*\n?\s*Job Posting URL:|$)/is);
+    const companyMatch = result.match(
+      /Company:\s*(.+?)(?=\s*\n?\s*Location:|$)/is,
+    );
+    const locationMatch = result.match(
+      /Location:\s*(.+?)(?=\s*\n?\s*Timezone:|\s*\n?\s*Job Posting URL:|$)/is,
+    );
+    const timezoneMatch = result.match(
+      /Timezone:\s*(.+?)(?=\s*\n?\s*Job Posting URL:|$)/is,
+    );
 
     return {
       role: roleMatch ? roleMatch[1].trim() : "",
@@ -173,7 +193,8 @@ export default function Command() {
       });
 
       // Call Apple Shortcut for AI parsing
-      const { role, company, location, timezone } = await callParseJobShortcut();
+      const { role, company, location, timezone } =
+        await callParseJobShortcut();
 
       setJobInfo({
         company: company || "Unknown Company",
@@ -210,8 +231,10 @@ export default function Command() {
   useEffect(() => {
     async function init() {
       // Load auto-refresh setting
-      const savedAutoRefresh = await LocalStorage.getItem<boolean>("autoRefresh");
-      const shouldAutoRefresh = savedAutoRefresh !== undefined ? savedAutoRefresh : true;
+      const savedAutoRefresh =
+        await LocalStorage.getItem<boolean>("autoRefresh");
+      const shouldAutoRefresh =
+        savedAutoRefresh !== undefined ? savedAutoRefresh : true;
       setAutoRefresh(shouldAutoRefresh);
 
       try {
@@ -234,7 +257,8 @@ export default function Command() {
             title: "Parsing job with AI...",
           });
 
-          const { role, company, location, timezone } = await callParseJobShortcut();
+          const { role, company, location, timezone } =
+            await callParseJobShortcut();
 
           setJobInfo({
             company: company || "Unknown Company",
@@ -359,7 +383,9 @@ export default function Command() {
           rich_text: [
             {
               text: {
-                content: values.timezone ? `${values.location} (${values.timezone})` : values.location,
+                content: values.timezone
+                  ? `${values.location} (${values.timezone})`
+                  : values.location,
               },
             },
           ],

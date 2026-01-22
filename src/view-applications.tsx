@@ -11,7 +11,7 @@ export default async function Command() {
 
   // Use notion:// protocol to open in Notion app
   const url = `notion://notion.so/${preferences.databaseId}`;
-  
+
   await open(url);
   await showHUD("📋 Opening Job Tracker...");
 }
