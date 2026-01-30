@@ -49,11 +49,12 @@ async function getBrowserUrl(): Promise<string> {
   }
 }
 
+import { exec } from "child_process";
+
 // Trigger Apple Shortcut "Parse Job" - runs as separate process
 async function triggerParseJobShortcut(): Promise<void> {
   try {
     // Use open command with shortcuts URL scheme - completely separate process
-    const { exec } = require("child_process");
     exec(`open "shortcuts://run-shortcut?name=Parse%20Job"`);
   } catch (error) {
     console.error("Failed to trigger shortcut:", error);
@@ -176,7 +177,6 @@ export default function Command() {
   const [selectedResume, setSelectedResume] = useState<string>("");
   const [droppedFile, setDroppedFile] = useState<string[]>([]);
   const [autoRefresh, setAutoRefresh] = useState(true);
-  const [isParsing, setIsParsing] = useState(false);
 
   // Function to fetch and parse job data
   async function fetchJobData() {
@@ -251,7 +251,6 @@ export default function Command() {
 
         if (shouldAutoRefresh) {
           // Auto-refresh ON: parse with AI
-          setIsParsing(true);
           await showToast({
             style: Toast.Style.Animated,
             title: "Parsing job with AI...",
@@ -273,7 +272,6 @@ export default function Command() {
             style: Toast.Style.Success,
             title: "Job parsed!",
           });
-          setIsParsing(false);
         } else {
           // Auto-refresh OFF: just set URL and source, keep previous company/role/location
           setJobInfo((prev) => ({
@@ -291,7 +289,6 @@ export default function Command() {
         });
       } finally {
         setIsLoading(false);
-        setIsParsing(false);
       }
     }
 
@@ -330,7 +327,6 @@ export default function Command() {
     try {
       const resumeFolder = getResumeFolder(preferences.resumeFolder);
       let resumeName = "";
-      let resumeFilePath = "";
 
       // Ensure resume folder exists
       if (!existsSync(resumeFolder)) {
@@ -353,11 +349,9 @@ export default function Command() {
         }
 
         resumeName = fileName;
-        resumeFilePath = destPath;
       } else if (values.resume) {
         // User selected from existing resumes
         resumeName = values.resume;
-        resumeFilePath = join(resumeFolder, values.resume);
       }
 
       await showToast({
@@ -519,19 +513,29 @@ export default function Command() {
         value={jobInfo.source}
         onChange={(value) => setJobInfo({ ...jobInfo, source: value })}
       >
-        <Form.Dropdown.Item value="LinkedIn" title="LinkedIn" />
-        <Form.Dropdown.Item value="Indeed" title="Indeed" />
-        <Form.Dropdown.Item value="Glassdoor" title="Glassdoor" />
-        <Form.Dropdown.Item value="Greenhouse" title="Greenhouse" />
-        <Form.Dropdown.Item value="Lever" title="Lever" />
-        <Form.Dropdown.Item value="Workday" title="Workday" />
-        <Form.Dropdown.Item value="Jobright" title="Jobright" />
-        <Form.Dropdown.Item value="Handshake" title="Handshake" />
-        <Form.Dropdown.Item value="Wellfound" title="Wellfound" />
-        <Form.Dropdown.Item value="ZipRecruiter" title="ZipRecruiter" />
-        <Form.Dropdown.Item value="Company Site" title="Company Site" />
-        <Form.Dropdown.Item value="Referral" title="Referral" />
-        <Form.Dropdown.Item value="Other" title="Other" />
+        <Form.Dropdown.Section title="Auto-Detected">
+          <Form.Dropdown.Item value={jobInfo.source} title={jobInfo.source} />
+        </Form.Dropdown.Section>
+        <Form.Dropdown.Section title="Job Boards">
+          <Form.Dropdown.Item value="LinkedIn" title="LinkedIn" />
+          <Form.Dropdown.Item value="Indeed" title="Indeed" />
+          <Form.Dropdown.Item value="Glassdoor" title="Glassdoor" />
+          <Form.Dropdown.Item value="Wellfound" title="Wellfound" />
+          <Form.Dropdown.Item value="Greenhouse" title="Greenhouse" />
+          <Form.Dropdown.Item value="Lever" title="Lever" />
+          <Form.Dropdown.Item value="Workday" title="Workday" />
+          <Form.Dropdown.Item value="Jobright" title="Jobright" />
+          <Form.Dropdown.Item value="Handshake" title="Handshake" />
+          <Form.Dropdown.Item value="ZipRecruiter" title="ZipRecruiter" />
+        </Form.Dropdown.Section>
+        <Form.Dropdown.Section title="Other">
+          <Form.Dropdown.Item value="Company Site" title="Company Site" />
+          <Form.Dropdown.Item value="Referral" title="Referral" />
+          <Form.Dropdown.Item value="Dice" title="Dice" />
+          <Form.Dropdown.Item value="Monster" title="Monster" />
+          <Form.Dropdown.Item value="SimplyHired" title="SimplyHired" />
+          <Form.Dropdown.Item value="Other" title="Other" />
+        </Form.Dropdown.Section>
       </Form.Dropdown>
       <Form.Separator />
       <Form.Description title="URL" text={jobInfo.url || "Loading..."} />

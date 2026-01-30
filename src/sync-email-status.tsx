@@ -145,27 +145,40 @@ export default async function Command() {
 
     // Match and prepare updates
     const pendingUpdates: PendingUpdate[] = [];
+    const unmatchedCompanies: string[] = [];
 
     for (const update of emailUpdates) {
       const matchingApp = findMatchingApplication(
         applications,
         update.company,
         fuzzyMatch,
+        0.6, // Lower threshold for better matching
       );
 
       if (matchingApp) {
-        pendingUpdates.push({
-          emailUpdate: update,
-          applicationId: matchingApp.id,
-          applicationCompany: matchingApp.company,
-          applicationRole: matchingApp.role,
-          newStatus: update.status,
-        });
+        // Avoid duplicates (same company already in pending updates)
+        const alreadyAdded = pendingUpdates.some(
+          (p) => p.applicationId === matchingApp.id,
+        );
+        if (!alreadyAdded) {
+          pendingUpdates.push({
+            emailUpdate: update,
+            applicationId: matchingApp.id,
+            applicationCompany: matchingApp.company,
+            applicationRole: matchingApp.role,
+            newStatus: update.status,
+          });
+        }
+      } else {
+        unmatchedCompanies.push(update.company);
       }
     }
 
     if (pendingUpdates.length === 0) {
-      await showHUD("No matching applications found to update");
+      const unmatchedList = unmatchedCompanies.slice(0, 10).join(", ");
+      await showHUD(
+        `No matches found. Emails: ${emailUpdates.length}, Notion apps: ${applications.length}. Unmatched: ${unmatchedList}`,
+      );
       return;
     }
 
@@ -174,10 +187,12 @@ export default async function Command() {
       .map((u) => `• ${u.applicationCompany} → ${u.newStatus}`)
       .join("\n");
 
+    const statsLine = `\n\n(${pendingUpdates.length} matched, ${unmatchedCompanies.length} unmatched from ${emailUpdates.length} emails)`;
+
     // Show native macOS confirmation dialog
     const confirmed = await showNativeConfirm(
       `Update ${pendingUpdates.length} Application(s)?`,
-      updatesList,
+      updatesList + statsLine,
     );
 
     if (!confirmed) {
@@ -210,6 +225,8 @@ export default async function Command() {
     }
   } catch (error) {
     console.error("Sync error:", error);
-    await showHUD(`❌ Sync failed: ${error instanceof Error ? error.message : "Unknown error"}`);
+    await showHUD(
+      `❌ Sync failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
   }
 }
