@@ -53,6 +53,21 @@ The extension:
 - [Notion](https://notion.so/) account (free)
 - macOS Shortcuts app with ChatGPT action
 
+## Quick Start
+
+```bash
+git clone https://github.com/nageshwar8296-bit/job-applications-tracker.git
+cd job-applications-tracker
+chmod +x install.sh
+./install.sh
+```
+
+The install script will guide you through the setup process.
+
+**AppleScript files for shortcuts are in the `shortcuts/` folder:**
+- `check-job-emails.applescript` - Basic version
+- `check-job-emails-with-chatgpt.applescript` - With ChatGPT for better parsing
+
 ## Setup
 
 ### 1. Create Notion Database
